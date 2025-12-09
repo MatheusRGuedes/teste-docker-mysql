@@ -1,0 +1,44 @@
+version: '3.8'
+
+services: #indica os containers
+  mmysql:
+    image: mysql:8.0
+    container_name: mysqldb
+    restart: always # se o container cair, reinicia automático
+    volumes: # persistência
+      - ./db:/var/lib/mysql # pasta local .db, mapeada dentro do container /var...
+    environment: # variáveis de ambiente
+      MYSQL_ROOT_PASSWORD: Senha123
+      MYSQL_DATABASE: testdb
+      #MYSQL_USER: teste 
+      #MYSQL_PASSWORD: teste123
+    ports: # minha máquina : dentro do container
+      - "3306:3306"    
+    networks: #comunicação interna
+      - spring_mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 10
+      timeout: 5s
+      #start_period: 30s
+
+  spring-boot-app:
+    container_name: springApp
+    build: . #pasta do dockerfile
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on: 
+      mmysql:
+        condition: service_healthy        
+    networks:
+      - spring_mysql      
+    environment: # variáveis de ambiente
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/testdb
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Senha123
+      
+networks: # cria rede personalizada
+  spring_mysql:
+    driver: bridge
