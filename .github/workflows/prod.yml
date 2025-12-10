@@ -1,0 +1,11 @@
+name: Deploy Application Test
+
+on:
+	push:
+		branches: [master]
+jobs:
+	build:
+		runs-on: ubuntu-latest
+		steps: 
+			- name: Checkout code
+			user: actions/checkout@v3
