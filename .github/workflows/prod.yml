@@ -9,14 +9,20 @@ jobs:
   runs-on: 'ubuntu-latest'
   steps: 
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v3 # pega e joga para a "máquina"
   
     - name: Setup Java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v3 #baixa dependência
       with:
        distribution: 'temurin'
        java-version: '17'
     - name: Build project
       run: mvn clean install -DskipTests
     #- name: Login Docker Hub
+    - name: Login Docker Hub
+      run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
+    - name: Build docker image
+      run: docker build -t matheusguedes25/app . #coloca a imgagem na raiz de onde está
+    - name: Push image docker
+      run: docker push matheusguedes25/app
       
