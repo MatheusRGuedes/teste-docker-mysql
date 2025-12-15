@@ -1,6 +1,6 @@
-# ---------------------------
+# -------------------------------
 # STAGE 1: Build do JAR com Maven
-# ---------------------------
+# -------------------------------
 FROM eclipse-temurin:17-jdk AS build
 
 WORKDIR /app
@@ -9,7 +9,9 @@ WORKDIR /app
 COPY pom.xml . 
 COPY mvnw .
 COPY .mvn .mvn
-RUN ./mvnw dependency:go-offline
+
+# Dá permissão em ambiente linux executar comandos mvnw
+RUN chmod +x mvnw && ./mvnw dependency:go-offline
 
 COPY src src
 RUN ./mvnw clean package -DskipTests
