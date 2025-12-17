@@ -1,28 +1,47 @@
+
+#Utilizado para fazer o deploy da aplicação (após uma ação do git)
+#CI - testa coninuamente se a integração da aplicação está funcionando
+#CD - testa coninuamente está realizando deploys
 name: Deploy Application Test
 
 on:
  push:
   branches: [master]
   
+# todos os jobs serão executados
 jobs:
  build:
   runs-on: 'ubuntu-latest'
-  steps: 
+  steps: #micro passos
     - name: Checkout code
-      uses: actions/checkout@v3 # pega e joga para a "máquina"
+      uses: actions/checkout@v3 #clona o repo e muda para a branch master (joga para a "máquina")
   
     - name: Setup Java
-      uses: actions/setup-java@v3 #baixa dependência
+      uses: actions/setup-java@v3 #instalar o java
       with:
        distribution: 'temurin'
        java-version: '17'
+       
     - name: Build project
       run: mvn clean install -DskipTests
-    #- name: Login Docker Hub
+       
     - name: Login Docker Hub
       run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
+      
     - name: Build docker image
       run: docker build -t matheusguedes25/app . #coloca a imgagem na raiz de onde está
-    - name: Push image docker
+      
+    - name: Push image docker #envia para o docker hub
       run: docker push matheusguedes25/app
       
+ deploy:
+  needs: build
+  runs-on: self-hosted
+  steps:
+    - name: Pull image from docker hub
+      uses: docker pull matheusguedes25/app:latest
+    - name: Run docker container
+      uses: docker-compose up -d --build mmysql spring-boot-app
+      #uses: docker run -d -p 8080:8080 --name deploy_test matheusguedes25/app
+ 
+ 
