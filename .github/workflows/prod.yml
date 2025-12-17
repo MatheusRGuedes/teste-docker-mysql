@@ -39,7 +39,7 @@ jobs:
   runs-on: self-hosted
   steps:
     - name: Pull image from docker hub
-      run: docker pull matheusguedes25/app:@latest
+      run: docker pull matheusguedes25/app:latest
     - name: Run docker container
       run: docker-compose up -d --build mmysql spring-boot-app
       #uses: docker run -d -p 8080:8080 --name deploy_test matheusguedes25/app
